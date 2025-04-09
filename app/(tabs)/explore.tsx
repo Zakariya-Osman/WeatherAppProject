@@ -8,7 +8,7 @@ import {
   ScrollView,
   StyleSheet,
 } from "react-native";
-import { useRouter } from 'expo-router';
+import { useRouter } from "expo-router";
 export default function WeatherApp() {
   const [cities, setCities] = useState([
     { name: "Tehran", temperature: "12", time: "10:00 AM", icon: "⛅️" },
@@ -43,7 +43,7 @@ export default function WeatherApp() {
     updated.splice(i, 1);
     setCities(updated);
   };
-  const router = useRouter()
+  const router = useRouter();
   return (
     <View style={s.container}>
       <View style={s.header}>
