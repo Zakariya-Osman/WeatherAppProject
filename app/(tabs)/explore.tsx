@@ -1,109 +1,207 @@
-import { StyleSheet, Image, Platform } from 'react-native';
+import React, { useState } from "react";
 
-import { Collapsible } from '@/components/Collapsible';
-import { ExternalLink } from '@/components/ExternalLink';
-import ParallaxScrollView from '@/components/ParallaxScrollView';
-import { ThemedText } from '@/components/ThemedText';
-import { ThemedView } from '@/components/ThemedView';
-import { IconSymbol } from '@/components/ui/IconSymbol';
-
-export default function TabTwoScreen() {
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  ScrollView,
+  StyleSheet,
+} from "react-native";
+import { useRouter } from 'expo-router';
+export default function WeatherApp() {
+  const [cities, setCities] = useState([
+    { name: "Tehran", temperature: "12", time: "10:00 AM", icon: "⛅️" },
+    { name: "Dubai", temperature: "31", time: "3:00 PM", icon: "☀️" },
+    { name: "London", temperature: "8", time: "5:30 PM", icon: "🌧️" },
+    { name: "New York", temperature: "4", time: "9:15 AM", icon: "🌤️" },
+    { name: "Tehran", temperature: "12", time: "10:00 AM", icon: "⛅️" },
+    { name: "Dubai", temperature: "31", time: "3:00 PM", icon: "☀️" },
+    { name: "London", temperature: "8", time: "5:30 PM", icon: "🌧️" },
+    { name: "New York", temperature: "4", time: "9:15 AM", icon: "🌤️" },
+  ]);
+  const [showSearch, setShowSearch] = useState(false);
+  const [newName, setNewName] = useState("");
+  const [newTemp, setNewTemp] = useState("");
+  const [newTime, setNewTime] = useState("");
+  // Will adjust this later for api calls
+  // const toggleSearch = () => setShowSearch(!showSearch);
+  // const addCity = () => {
+  //   if (newName.trim() && newTemp.trim() && newTime.trim()) {
+  //     setCities([
+  //       ...cities,
+  //       { name: newName, temperature: newTemp, time: newTime, icon: "❓" },
+  //     ]);
+  //     setNewName("");
+  //     setNewTemp("");
+  //     setNewTime("");
+  //     setShowSearch(false);
+  //   }
+  // };
+  const deleteCity = (i: number) => {
+    let updated = [...cities];
+    updated.splice(i, 1);
+    setCities(updated);
+  };
+  const router = useRouter()
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#D0D0D0', dark: '#353636' }}
-      headerImage={
-        <IconSymbol
-          size={310}
-          color="#808080"
-          name="chevron.left.forwardslash.chevron.right"
-          style={styles.headerImage}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Explore</ThemedText>
-      </ThemedView>
-      <ThemedText>This app includes example code to help you get started.</ThemedText>
-      <Collapsible title="File-based routing">
-        <ThemedText>
-          This app has two screens:{' '}
-          <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> and{' '}
-          <ThemedText type="defaultSemiBold">app/(tabs)/explore.tsx</ThemedText>
-        </ThemedText>
-        <ThemedText>
-          The layout file in <ThemedText type="defaultSemiBold">app/(tabs)/_layout.tsx</ThemedText>{' '}
-          sets up the tab navigator.
-        </ThemedText>
-        <ExternalLink href="https://docs.expo.dev/router/introduction">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Android, iOS, and web support">
-        <ThemedText>
-          You can open this project on Android, iOS, and the web. To open the web version, press{' '}
-          <ThemedText type="defaultSemiBold">w</ThemedText> in the terminal running this project.
-        </ThemedText>
-      </Collapsible>
-      <Collapsible title="Images">
-        <ThemedText>
-          For static images, you can use the <ThemedText type="defaultSemiBold">@2x</ThemedText> and{' '}
-          <ThemedText type="defaultSemiBold">@3x</ThemedText> suffixes to provide files for
-          different screen densities
-        </ThemedText>
-        <Image source={require('@/assets/images/react-logo.png')} style={{ alignSelf: 'center' }} />
-        <ExternalLink href="https://reactnative.dev/docs/images">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Custom fonts">
-        <ThemedText>
-          Open <ThemedText type="defaultSemiBold">app/_layout.tsx</ThemedText> to see how to load{' '}
-          <ThemedText style={{ fontFamily: 'SpaceMono' }}>
-            custom fonts such as this one.
-          </ThemedText>
-        </ThemedText>
-        <ExternalLink href="https://docs.expo.dev/versions/latest/sdk/font">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Light and dark mode components">
-        <ThemedText>
-          This template has light and dark mode support. The{' '}
-          <ThemedText type="defaultSemiBold">useColorScheme()</ThemedText> hook lets you inspect
-          what the user's current color scheme is, and so you can adjust UI colors accordingly.
-        </ThemedText>
-        <ExternalLink href="https://docs.expo.dev/develop/user-interface/color-themes/">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Animations">
-        <ThemedText>
-          This template includes an example of an animated component. The{' '}
-          <ThemedText type="defaultSemiBold">components/HelloWave.tsx</ThemedText> component uses
-          the powerful <ThemedText type="defaultSemiBold">react-native-reanimated</ThemedText>{' '}
-          library to create a waving hand animation.
-        </ThemedText>
-        {Platform.select({
-          ios: (
-            <ThemedText>
-              The <ThemedText type="defaultSemiBold">components/ParallaxScrollView.tsx</ThemedText>{' '}
-              component provides a parallax effect for the header image.
-            </ThemedText>
-          ),
-        })}
-      </Collapsible>
-    </ParallaxScrollView>
+    <View style={s.container}>
+      <View style={s.header}>
+        <Text style={s.headerTitle}>Weather</Text>
+        <TouchableOpacity style={s.plusButton}>
+          <Text style={s.plusIcon}>+</Text>
+        </TouchableOpacity>
+      </View>
+      {showSearch && (
+        <View style={s.searchContainer}>
+          <TextInput
+            style={s.searchInput}
+            placeholder="City Name"
+            value={newName}
+            onChangeText={setNewName}
+          />
+          <TextInput
+            style={s.searchInput}
+            placeholder="Temperature"
+            value={newTemp}
+            onChangeText={setNewTemp}
+          />
+          <TextInput
+            style={s.searchInput}
+            placeholder="Time"
+            value={newTime}
+            onChangeText={setNewTime}
+          />
+          <TouchableOpacity style={s.addButton}>
+            <Text style={s.addButtonText}>Add</Text>
+          </TouchableOpacity>
+        </View>
+      )}
+      <ScrollView style={s.list} showsVerticalScrollIndicator={false}>
+        {cities.map((c, i) => (
+          <View
+            key={i}
+            style={[
+              s.weatherItem,
+              i === cities.length - 1 ? { borderBottomWidth: 0 } : null,
+            ]}
+          >
+            <TouchableOpacity
+              onPress={() => deleteCity(i)}
+              style={s.deleteButton}
+            >
+              <Text style={s.deleteText}>x</Text>
+            </TouchableOpacity>
+            <View style={s.itemRow}>
+              <View>
+                <View style={s.tempRow}>
+                  <Text style={s.temperature}>{c.temperature}</Text>
+                  <Text style={s.degreeSymbol}>°</Text>
+                </View>
+                <Text style={s.cityName}>{c.name}</Text>
+                <Text style={s.timeText}>{c.time}</Text>
+              </View>
+              <View style={s.rightSide}>
+                <Text style={s.weatherIcon}>{c.icon}</Text>
+              </View>
+            </View>
+          </View>
+        ))}
+      </ScrollView>
+    </View>
   );
 }
 
-const styles = StyleSheet.create({
-  headerImage: {
-    color: '#808080',
-    bottom: -90,
-    left: -35,
-    position: 'absolute',
+const s = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: "#3a7bd5",
+    paddingTop: 50,
+    paddingHorizontal: 20,
   },
-  titleContainer: {
-    flexDirection: 'row',
-    gap: 8,
+  header: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 20,
   },
+  headerTitle: { fontSize: 24, fontWeight: "bold", color: "#fff" },
+  plusButton: { padding: 10 },
+  plusIcon: { fontSize: 28, color: "#fff" },
+  searchContainer: {
+    backgroundColor: "rgba(255,255,255,0.2)",
+    borderRadius: 8,
+    padding: 10,
+    marginBottom: 20,
+  },
+  searchInput: {
+    backgroundColor: "#fff",
+    borderRadius: 4,
+    marginBottom: 10,
+    paddingHorizontal: 10,
+    height: 40,
+  },
+  addButton: {
+    alignSelf: "flex-end",
+    backgroundColor: "#ffcc00",
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 5,
+  },
+  addButtonText: { fontWeight: "bold" },
+  list: { flex: 1 },
+  weatherItem: {
+    borderBottomColor: "#fff",
+    borderBottomWidth: 1,
+    paddingVertical: 20,
+    minHeight: 120,
+    position: "relative",
+  },
+  deleteButton: {
+    position: "absolute",
+    top: 10,
+    right: 0,
+    zIndex: 1,
+    padding: 5,
+  },
+  deleteText: { fontSize: 16, color: "#fff" },
+  itemRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  tempRow: { flexDirection: "row", alignItems: "flex-start" },
+  temperature: { fontSize: 70, fontWeight: "bold", color: "#fff" },
+  degreeSymbol: {
+    fontSize: 18,
+    fontWeight: "300",
+    color: "#fff",
+    marginTop: 10,
+    marginLeft: 2,
+  },
+  cityName: {
+    fontSize: 20,
+    fontWeight: "400",
+    color: "#fff",
+    marginVertical: 5,
+  },
+  returnButton: {
+    backgroundColor: "white",
+    paddingHorizontal: 20,
+    paddingVertical: 12,
+    marginVertical: 10,
+    padding: 12,
+    borderRadius: 20,
+    width: 200,
+    alignItems: "center",
+    marginTop: 10,
+  },
+  returnText: {
+    color: "black",
+    fontSize: 16,
+    fontWeight: "bold",
+  },
+  timeText: { fontSize: 12, color: "#fff" },
+  rightSide: { alignItems: "flex-end", marginRight: 10 },
+  weatherIcon: { fontSize: 70, color: "#fff" },
 });
