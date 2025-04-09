@@ -1,109 +1,214 @@
-import { StyleSheet, Image, Platform } from 'react-native';
+import React, { useEffect, useRef, useState } from "react";
+import {
+  SafeAreaView,
+  View,
+  Text,
+  StyleSheet,
+  Dimensions,
+  Animated,
+  Easing,
+  Image,
+} from "react-native";
+import * as Location from "expo-location";
+import { Magnetometer } from "expo-sensors";
+import { StatusBar } from "expo-status-bar";
+import { Wind, Droplets, Thermometer } from "lucide-react-native";
 
-import { Collapsible } from '@/components/Collapsible';
-import { ExternalLink } from '@/components/ExternalLink';
-import ParallaxScrollView from '@/components/ParallaxScrollView';
-import { ThemedText } from '@/components/ThemedText';
-import { ThemedView } from '@/components/ThemedView';
-import { IconSymbol } from '@/components/ui/IconSymbol';
+const { width } = Dimensions.get("window");
+const COMPASS_SIZE = Math.min(width * 0.6, 300);
+const MAX_ANGLE_SAMPLES = 10;
+const PRIMARY_BLUE = "#3B82F6";
+const WHITE = "#FFFFFF";
 
-export default function TabTwoScreen() {
+export default function ExploreScreen() {
+  const rotation = useRef(new Animated.Value(0)).current;
+  const angleHistory = useRef<number[]>([]);
+
+  const [heading, setHeading] = useState(0);
+  const [locationName, setLocationName] = useState("Locating...");
+  const [weather, setWeather] = useState<any>(null);
+
+  // Magnetometer: Smooth heading updates
+  useEffect(() => {
+    const sub = Magnetometer.addListener(({ x, y }) => {
+      let angle = (Math.atan2(y, x) * 180) / Math.PI;
+      angle = angle >= 0 ? angle : angle + 360;
+
+      const history = angleHistory.current;
+      history.push(angle);
+      if (history.length > MAX_ANGLE_SAMPLES) history.shift();
+
+      const avg = history.reduce((a, b) => a + b, 0) / history.length;
+      setHeading(avg);
+    });
+
+    Magnetometer.setUpdateInterval(400);
+    return () => sub.remove();
+  }, []);
+
+  // Animate compass rotation
+  useEffect(() => {
+    Animated.timing(rotation, {
+      toValue: -heading,
+      duration: 150,
+      easing: Easing.out(Easing.ease),
+      useNativeDriver: true,
+    }).start();
+  }, [heading]);
+
+  // Fetch location + mock weather
+  useEffect(() => {
+    (async () => {
+      const { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== "granted") return;
+
+      const loc = await Location.getCurrentPositionAsync({});
+      const [geo] = await Location.reverseGeocodeAsync(loc.coords);
+      setLocationName(`${geo?.city ?? "Unknown"}, ${geo?.region ?? ""}`.trim());
+
+      setWeather({
+        temperature: 23,
+        feelsLike: 24,
+        humidity: 58,
+        windSpeed: 5,
+        windDirection: "NE",
+        condition: "Sunny",
+      });
+    })();
+  }, []);
+
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#D0D0D0', dark: '#353636' }}
-      headerImage={
-        <IconSymbol
-          size={310}
-          color="#808080"
-          name="chevron.left.forwardslash.chevron.right"
-          style={styles.headerImage}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Explore</ThemedText>
-      </ThemedView>
-      <ThemedText>This app includes example code to help you get started.</ThemedText>
-      <Collapsible title="File-based routing">
-        <ThemedText>
-          This app has two screens:{' '}
-          <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> and{' '}
-          <ThemedText type="defaultSemiBold">app/(tabs)/explore.tsx</ThemedText>
-        </ThemedText>
-        <ThemedText>
-          The layout file in <ThemedText type="defaultSemiBold">app/(tabs)/_layout.tsx</ThemedText>{' '}
-          sets up the tab navigator.
-        </ThemedText>
-        <ExternalLink href="https://docs.expo.dev/router/introduction">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Android, iOS, and web support">
-        <ThemedText>
-          You can open this project on Android, iOS, and the web. To open the web version, press{' '}
-          <ThemedText type="defaultSemiBold">w</ThemedText> in the terminal running this project.
-        </ThemedText>
-      </Collapsible>
-      <Collapsible title="Images">
-        <ThemedText>
-          For static images, you can use the <ThemedText type="defaultSemiBold">@2x</ThemedText> and{' '}
-          <ThemedText type="defaultSemiBold">@3x</ThemedText> suffixes to provide files for
-          different screen densities
-        </ThemedText>
-        <Image source={require('@/assets/images/react-logo.png')} style={{ alignSelf: 'center' }} />
-        <ExternalLink href="https://reactnative.dev/docs/images">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Custom fonts">
-        <ThemedText>
-          Open <ThemedText type="defaultSemiBold">app/_layout.tsx</ThemedText> to see how to load{' '}
-          <ThemedText style={{ fontFamily: 'SpaceMono' }}>
-            custom fonts such as this one.
-          </ThemedText>
-        </ThemedText>
-        <ExternalLink href="https://docs.expo.dev/versions/latest/sdk/font">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Light and dark mode components">
-        <ThemedText>
-          This template has light and dark mode support. The{' '}
-          <ThemedText type="defaultSemiBold">useColorScheme()</ThemedText> hook lets you inspect
-          what the user's current color scheme is, and so you can adjust UI colors accordingly.
-        </ThemedText>
-        <ExternalLink href="https://docs.expo.dev/develop/user-interface/color-themes/">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Animations">
-        <ThemedText>
-          This template includes an example of an animated component. The{' '}
-          <ThemedText type="defaultSemiBold">components/HelloWave.tsx</ThemedText> component uses
-          the powerful <ThemedText type="defaultSemiBold">react-native-reanimated</ThemedText>{' '}
-          library to create a waving hand animation.
-        </ThemedText>
-        {Platform.select({
-          ios: (
-            <ThemedText>
-              The <ThemedText type="defaultSemiBold">components/ParallaxScrollView.tsx</ThemedText>{' '}
-              component provides a parallax effect for the header image.
-            </ThemedText>
-          ),
-        })}
-      </Collapsible>
-    </ParallaxScrollView>
+    <SafeAreaView style={styles.screen}>
+      <StatusBar style="light" />
+      <Text style={styles.location}>{locationName}</Text>
+
+      <View style={styles.centerContainer}>
+        <Animated.View
+          style={[
+            styles.imageContainer,
+            {
+              transform: [
+                {
+                  rotate: rotation.interpolate({
+                    inputRange: [-360, 0, 360],
+                    outputRange: ["-720deg", "0deg", "720deg"],
+                  }),
+                },
+              ],
+            },
+          ]}
+        >
+          <Image
+            source={require("../../assets/images/compass.png")}
+            style={styles.image}
+            resizeMode="contain"
+          />
+        </Animated.View>
+
+        <Text style={styles.headingText}>{Math.round(heading)}°</Text>
+      </View>
+
+      {weather && (
+        <View style={styles.weatherCard}>
+          <View style={styles.weatherHeader}>
+            <Text style={styles.temperature}>
+              {Math.round(weather.temperature)}°
+            </Text>
+            <Text style={styles.condition}>{weather.condition}</Text>
+          </View>
+
+          <View style={styles.weatherDetails}>
+            <WeatherDetail
+              icon={Wind}
+              text={`${weather.windSpeed} mph ${weather.windDirection}`}
+            />
+            <WeatherDetail icon={Droplets} text={`${weather.humidity}%`} />
+            <WeatherDetail
+              icon={Thermometer}
+              text={`Feels like ${Math.round(weather.feelsLike)}°`}
+            />
+          </View>
+        </View>
+      )}
+    </SafeAreaView>
   );
 }
 
+// Weather Detail Item Component
+function WeatherDetail({ icon: Icon, text }: { icon: any; text: string }) {
+  return (
+    <View style={styles.detailItem}>
+      <Icon size={20} color={PRIMARY_BLUE} />
+      <Text style={styles.detailText}>{text}</Text>
+    </View>
+  );
+}
+
+// ------------------ Styles ------------------
+
 const styles = StyleSheet.create({
-  headerImage: {
-    color: '#808080',
-    bottom: -90,
-    left: -35,
-    position: 'absolute',
+  screen: {
+    flex: 1,
+    backgroundColor: PRIMARY_BLUE,
+    alignItems: "center",
   },
-  titleContainer: {
-    flexDirection: 'row',
-    gap: 8,
+  location: {
+    marginTop: 20,
+    fontSize: 18,
+    color: WHITE,
+  },
+  centerContainer: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  imageContainer: {
+    width: COMPASS_SIZE,
+    height: COMPASS_SIZE,
+  },
+  image: {
+    width: "100%",
+    height: "100%",
+  },
+  headingText: {
+    marginTop: 20,
+    fontSize: 36,
+    color: WHITE,
+    fontWeight: "bold",
+  },
+  weatherCard: {
+    width: "90%",
+    backgroundColor: WHITE,
+    borderRadius: 16,
+    padding: 16,
+    marginBottom: 20,
+  },
+  weatherHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginBottom: 16,
+  },
+  temperature: {
+    fontSize: 36,
+    fontWeight: "bold",
+    color: PRIMARY_BLUE,
+  },
+  condition: {
+    fontSize: 18,
+    color: PRIMARY_BLUE,
+  },
+  weatherDetails: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+  },
+  detailItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginRight: 10,
+  },
+  detailText: {
+    color: PRIMARY_BLUE,
+    marginLeft: 6,
+    fontSize: 14,
   },
 });
