@@ -55,7 +55,7 @@ const styles = StyleSheet.create({
       flex: 1,
     },
     profiletext: {
-        color: '#3B82F6',
+        color: "#fff",
         fontSize: 45,
         fontWeight: "bold",
     },
