@@ -34,7 +34,7 @@ const WeeklyWeather = () => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        padding: 16,
+        padding: 40,
         backgroundColor: '#3A7BD5', // Sky blue background
     },
     title: {
