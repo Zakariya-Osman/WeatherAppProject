@@ -47,11 +47,12 @@ export default function profile() {
 const styles = StyleSheet.create({
     container: {
       color: "black",
+      backgroundColor: '#3A7BD5',
       fontSize: 16,
       fontWeight: "bold",
       justifyContent: "center",
       alignItems: "center",
-      marginTop: 60,
+      flex: 1,
     },
     profiletext: {
         color: '#3B82F6',
