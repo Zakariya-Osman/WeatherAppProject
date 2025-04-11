@@ -5,6 +5,9 @@ const LandingPage = () => {
     const router = useRouter()
     return (
         <View style={styles.container}>
+            <Image source={require('./image (2) (3).webp')} 
+            style={{width: 150, height: 150}}
+            />
             <Text style={styles.title}>Welcome to SkyCast!</Text>
         </View>
     )
@@ -21,6 +24,7 @@ const styles = StyleSheet.create({
         fontSize: 40,
         fontWeight: 'bold',
         marginBottom: 20,
+        fontFamily: 'Times New Roman',
     },
     button: {
         backgroundColor: "white",
