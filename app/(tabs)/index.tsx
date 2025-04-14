@@ -8,21 +8,37 @@ import {
   SafeAreaView,
 } from "react-native";
 
-// ✅ Your API Key
 const API_KEY = "0e6e03c5c64e4baf940220745251404";
 
 const WeeklyWeather = () => {
   const [weatherData, setWeatherData] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [currentTemp, setCurrentTemp] = useState<number | null>(null);
+  const [todayDate, setTodayDate] = useState<string | null>(null); // accurate from API
 
   useEffect(() => {
     const fetchWeather = async () => {
       try {
-        const response = await fetch(
+        const forecastRes = await fetch(
           `https://api.weatherapi.com/v1/forecast.json?key=${API_KEY}&q=Calgary&days=7`
         );
-        const data = await response.json();
-        setWeatherData(data.forecast.forecastday);
+        const forecastData = await forecastRes.json();
+
+        const currentRes = await fetch(
+          `https://api.weatherapi.com/v1/current.json?key=${API_KEY}&q=Calgary`
+        );
+        const currentData = await currentRes.json();
+
+        const today = currentData.location.localtime.split(" ")[0]; // e.g. '2025-04-15'
+
+        // Filter out any forecast days before today
+        const filteredForecast = forecastData.forecast.forecastday.filter(
+          (item: any) => item.date >= today
+        );
+
+        setTodayDate(today);
+        setCurrentTemp(currentData.current.temp_c);
+        setWeatherData(filteredForecast);
         setLoading(false);
       } catch (error) {
         console.error("Error fetching weather data:", error);
@@ -33,13 +49,28 @@ const WeeklyWeather = () => {
     fetchWeather();
   }, []);
 
-  const renderItem = ({ item }) => (
-    <View style={styles.weatherItem}>
-      <Text style={styles.day}>{formatDate(item.date)}</Text>
-      <Text style={styles.condition}>{item.day.condition.text}</Text>
-      <Text style={styles.temp}>{item.day.avgtemp_c}°C</Text>
-    </View>
-  );
+  const renderItem = ({
+    item,
+  }: {
+    item: {
+      date: string;
+      day: { condition: { text: string }; avgtemp_c: number };
+    };
+  }) => {
+    const isToday = item.date === todayDate;
+
+    return (
+      <View style={styles.weatherItem}>
+        <Text style={[styles.day, isToday && styles.today]}>
+          {isToday ? "Today" : formatDate(item.date)}
+        </Text>
+        <Text style={styles.condition}>{item.day.condition.text}</Text>
+        <Text style={styles.temp}>
+          {isToday && currentTemp !== null ? currentTemp : item.day.avgtemp_c}°C
+        </Text>
+      </View>
+    );
+  };
 
   const formatDate = (dateString: string) => {
     const options: Intl.DateTimeFormatOptions = { weekday: "long" };
@@ -98,6 +129,10 @@ const styles = StyleSheet.create({
     fontWeight: "600",
     color: "#1e293b",
     flex: 1,
+  },
+  today: {
+    color: "#2563EB",
+    fontWeight: "bold",
   },
   condition: {
     fontSize: 16,

@@ -23,9 +23,20 @@ export default function ProfileScreen() {
     setProfile({ ...profile, [key]: value });
   };
 
+  const getGreeting = () => {
+    const hour = new Date().getHours();
+    if (hour < 12) return "Good morning";
+    if (hour < 18) return "Good afternoon";
+    return "Good evening";
+  };
+
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <View style={styles.inner}>
+        <Text style={styles.greeting}>
+          {getGreeting()}, {profile.firstName}
+        </Text>
+
         <Text style={styles.title}>Profile</Text>
 
         <Image
@@ -68,11 +79,16 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     backgroundColor: "#3A7BD5",
     justifyContent: "flex-start",
-    paddingTop: 80, // 👈 Adds vertical spacing
+    paddingTop: 80,
     paddingHorizontal: 20,
   },
   inner: {
     alignItems: "center",
+  },
+  greeting: {
+    fontSize: 22,
+    color: "#E2E8F0",
+    marginBottom: 10,
   },
   title: {
     fontSize: 36,

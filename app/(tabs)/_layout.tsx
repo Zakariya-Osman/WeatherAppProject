@@ -1,18 +1,20 @@
-import { Tabs } from "expo-router";
 import React from "react";
 import { Platform } from "react-native";
+import { Tabs } from "expo-router";
+import {
+  AntDesign,
+  FontAwesome5,
+  MaterialCommunityIcons,
+} from "@expo/vector-icons";
 
 import { HapticTab } from "@/components/HapticTab";
-import { IconSymbol } from "@/components/ui/IconSymbol";
 import TabBarBackground from "@/components/ui/TabBarBackground";
 import { Colors } from "@/constants/Colors";
 import { useColorScheme } from "@/hooks/useColorScheme";
-import { MaterialIcons } from '@expo/vector-icons';
-import AntDesign from '@expo/vector-icons/AntDesign';
-import Ionicons from '@expo/vector-icons/Ionicons';
-import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
+
 export default function TabLayout() {
   const colorScheme = useColorScheme();
+  const iconColor = "white";
 
   return (
     <Tabs
@@ -22,29 +24,39 @@ export default function TabLayout() {
         tabBarButton: HapticTab,
         tabBarBackground: TabBarBackground,
         tabBarStyle: Platform.select({
-          ios: {
-            // Use a transparent background on iOS to show the blur effect
-            position: "absolute",
-          },
-          default: {},
+          ios: { position: "absolute", borderTopWidth: 0 },
+          android: { elevation: 0 },
         }),
       }}
     >
       <Tabs.Screen
-        name="index"
+        name="explore"
         options={{
-          title: "Home",
-          tabBarIcon: ({ color }) => (
-            <AntDesign name="home" size={24} color="white" />
+          title: "Today",
+          tabBarIcon: () => (
+            <MaterialCommunityIcons
+              name="weather-partly-cloudy"
+              size={24}
+              color={iconColor}
+            />
           ),
         }}
       />
       <Tabs.Screen
-        name="countries"
+        name="index"
         options={{
-          title: "Countries",
-          tabBarIcon: ({ color }) => (
-            <Ionicons name="globe-outline" size={24} color="white" />
+          title: "Weekly",
+          tabBarIcon: () => (
+            <FontAwesome5 name="calendar-week" size={20} color={iconColor} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="compass"
+        options={{
+          title: "Compass",
+          tabBarIcon: () => (
+            <FontAwesome5 name="compass" size={24} color={iconColor} />
           ),
         }}
       />
@@ -52,26 +64,8 @@ export default function TabLayout() {
         name="profile"
         options={{
           title: "Profile",
-          tabBarIcon: ({ color }) => (
-            <AntDesign name="user" size={24} color="white" />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="compass-screen"
-        options={{
-          title: "Compass",
-          tabBarIcon: ({ color }) => (
-            <Ionicons name="compass" size={24} color="white" />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="weekly-weather"
-        options={{
-          title: "Weekly",
-          tabBarIcon: ({ color }) => (
-            <FontAwesome5 name="calendar-week" size={24} color="white" />
+          tabBarIcon: () => (
+            <AntDesign name="user" size={24} color={iconColor} />
           ),
         }}
       />

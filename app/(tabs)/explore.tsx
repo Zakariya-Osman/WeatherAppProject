@@ -1,207 +1,139 @@
-import React, { useState } from "react";
-
+import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
-  TextInput,
-  TouchableOpacity,
-  ScrollView,
   StyleSheet,
+  ActivityIndicator,
+  SafeAreaView,
+  Image,
 } from "react-native";
-import { useRouter } from "expo-router";
-export default function WeatherApp() {
-  const [cities, setCities] = useState([
-    { name: "Tehran", temperature: "12", time: "10:00 AM", icon: "⛅️" },
-    { name: "Dubai", temperature: "31", time: "3:00 PM", icon: "☀️" },
-    { name: "London", temperature: "8", time: "5:30 PM", icon: "🌧️" },
-    { name: "New York", temperature: "4", time: "9:15 AM", icon: "🌤️" },
-    { name: "Tehran", temperature: "12", time: "10:00 AM", icon: "⛅️" },
-    { name: "Dubai", temperature: "31", time: "3:00 PM", icon: "☀️" },
-    { name: "London", temperature: "8", time: "5:30 PM", icon: "🌧️" },
-    { name: "New York", temperature: "4", time: "9:15 AM", icon: "🌤️" },
-  ]);
-  const [showSearch, setShowSearch] = useState(false);
-  const [newName, setNewName] = useState("");
-  const [newTemp, setNewTemp] = useState("");
-  const [newTime, setNewTime] = useState("");
-  // Will adjust this later for api calls
-  // const toggleSearch = () => setShowSearch(!showSearch);
-  // const addCity = () => {
-  //   if (newName.trim() && newTemp.trim() && newTime.trim()) {
-  //     setCities([
-  //       ...cities,
-  //       { name: newName, temperature: newTemp, time: newTime, icon: "❓" },
-  //     ]);
-  //     setNewName("");
-  //     setNewTemp("");
-  //     setNewTime("");
-  //     setShowSearch(false);
-  //   }
-  // };
-  const deleteCity = (i: number) => {
-    let updated = [...cities];
-    updated.splice(i, 1);
-    setCities(updated);
-  };
-  const router = useRouter();
-  return (
-    <View style={s.container}>
-      <View style={s.header}>
-        <Text style={s.headerTitle}>Weather</Text>
-        <TouchableOpacity style={s.plusButton}>
-          <Text style={s.plusIcon}>+</Text>
-        </TouchableOpacity>
-      </View>
-      {showSearch && (
-        <View style={s.searchContainer}>
-          <TextInput
-            style={s.searchInput}
-            placeholder="City Name"
-            value={newName}
-            onChangeText={setNewName}
-          />
-          <TextInput
-            style={s.searchInput}
-            placeholder="Temperature"
-            value={newTemp}
-            onChangeText={setNewTemp}
-          />
-          <TextInput
-            style={s.searchInput}
-            placeholder="Time"
-            value={newTime}
-            onChangeText={setNewTime}
-          />
-          <TouchableOpacity style={s.addButton}>
-            <Text style={s.addButtonText}>Add</Text>
-          </TouchableOpacity>
-        </View>
-      )}
-      <ScrollView style={s.list} showsVerticalScrollIndicator={false}>
-        {cities.map((c, i) => (
-          <View
-            key={i}
-            style={[
-              s.weatherItem,
-              i === cities.length - 1 ? { borderBottomWidth: 0 } : null,
-            ]}
-          >
-            <TouchableOpacity
-              onPress={() => deleteCity(i)}
-              style={s.deleteButton}
-            >
-              <Text style={s.deleteText}>x</Text>
-            </TouchableOpacity>
-            <View style={s.itemRow}>
-              <View>
-                <View style={s.tempRow}>
-                  <Text style={s.temperature}>{c.temperature}</Text>
-                  <Text style={s.degreeSymbol}>°</Text>
-                </View>
-                <Text style={s.cityName}>{c.name}</Text>
-                <Text style={s.timeText}>{c.time}</Text>
-              </View>
-              <View style={s.rightSide}>
-                <Text style={s.weatherIcon}>{c.icon}</Text>
-              </View>
-            </View>
-          </View>
-        ))}
-      </ScrollView>
-    </View>
-  );
-}
 
-const s = StyleSheet.create({
+const API_KEY = "0e6e03c5c64e4baf940220745251404";
+
+const TodayWeather = () => {
+  const [weather, setWeather] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchWeather = async () => {
+      try {
+        const response = await fetch(
+          `https://api.weatherapi.com/v1/forecast.json?key=${API_KEY}&q=Calgary&days=1`
+        );
+        const data = await response.json();
+        setWeather(data);
+        setLoading(false);
+      } catch (error) {
+        console.error("Error fetching today’s weather:", error);
+        setLoading(false);
+      }
+    };
+
+    fetchWeather();
+  }, []);
+
+  if (loading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#fff" />
+      </View>
+    );
+  }
+
+  const {
+    location,
+    current,
+    forecast: { forecastday },
+  } = weather;
+
+  const forecastToday = forecastday[0].day;
+  const lastUpdated = current.last_updated;
+
+  const formatFullDate = () => {
+    return new Date(current.last_updated).toLocaleDateString(undefined, {
+      weekday: "long",
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    });
+  };
+
+  return (
+    <SafeAreaView style={styles.container}>
+      <Text style={styles.title}>Today's Weather - {location.name}</Text>
+      <Text style={styles.date}>{formatFullDate()}</Text>
+
+      <Image
+        source={{ uri: "https:" + current.condition.icon }}
+        style={styles.icon}
+      />
+      <Text style={styles.temp}>{current.temp_c}°C</Text>
+      <Text style={styles.condition}>{current.condition.text}</Text>
+
+      <Text style={styles.details}>Feels like: {current.feelslike_c}°C</Text>
+      <Text style={styles.details}>High: {forecastToday.maxtemp_c}°C</Text>
+      <Text style={styles.details}>Low: {forecastToday.mintemp_c}°C</Text>
+      <Text style={styles.details}>Humidity: {current.humidity}%</Text>
+      <Text style={styles.details}>Wind: {current.wind_kph} km/h</Text>
+
+      <Text style={styles.updated}>Last updated: {lastUpdated}</Text>
+    </SafeAreaView>
+  );
+};
+
+const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#3a7bd5",
-    paddingTop: 50,
+    backgroundColor: "#3A7BD5",
+    alignItems: "center",
+    paddingTop: 80,
     paddingHorizontal: 20,
   },
-  header: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: 20,
-  },
-  headerTitle: { fontSize: 24, fontWeight: "bold", color: "#fff" },
-  plusButton: { padding: 10 },
-  plusIcon: { fontSize: 28, color: "#fff" },
-  searchContainer: {
-    backgroundColor: "rgba(255,255,255,0.2)",
-    borderRadius: 8,
-    padding: 10,
-    marginBottom: 20,
-  },
-  searchInput: {
-    backgroundColor: "#fff",
-    borderRadius: 4,
-    marginBottom: 10,
-    paddingHorizontal: 10,
-    height: 40,
-  },
-  addButton: {
-    alignSelf: "flex-end",
-    backgroundColor: "#ffcc00",
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    borderRadius: 5,
-  },
-  addButtonText: { fontWeight: "bold" },
-  list: { flex: 1 },
-  weatherItem: {
-    borderBottomColor: "#fff",
-    borderBottomWidth: 1,
-    paddingVertical: 20,
-    minHeight: 120,
-    position: "relative",
-  },
-  deleteButton: {
-    position: "absolute",
-    top: 10,
-    right: 0,
-    zIndex: 1,
-    padding: 5,
-  },
-  deleteText: { fontSize: 16, color: "#fff" },
-  itemRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-  },
-  tempRow: { flexDirection: "row", alignItems: "flex-start" },
-  temperature: { fontSize: 70, fontWeight: "bold", color: "#fff" },
-  degreeSymbol: {
-    fontSize: 18,
-    fontWeight: "300",
+  title: {
+    fontSize: 24,
     color: "#fff",
-    marginTop: 10,
-    marginLeft: 2,
-  },
-  cityName: {
-    fontSize: 20,
-    fontWeight: "400",
-    color: "#fff",
-    marginVertical: 5,
-  },
-  returnButton: {
-    backgroundColor: "white",
-    paddingHorizontal: 20,
-    paddingVertical: 12,
-    marginVertical: 10,
-    padding: 12,
-    borderRadius: 20,
-    width: 200,
-    alignItems: "center",
-    marginTop: 10,
-  },
-  returnText: {
-    color: "black",
-    fontSize: 16,
     fontWeight: "bold",
+    marginBottom: 10,
+    textAlign: "center",
   },
-  timeText: { fontSize: 12, color: "#fff" },
-  rightSide: { alignItems: "flex-end", marginRight: 10 },
-  weatherIcon: { fontSize: 70, color: "#fff" },
+  date: {
+    fontSize: 18,
+    color: "#e0f2fe",
+    marginBottom: 10,
+    fontWeight: "500",
+  },
+  icon: {
+    width: 100,
+    height: 100,
+  },
+  temp: {
+    fontSize: 48,
+    color: "#fff",
+    fontWeight: "bold",
+    marginTop: 10,
+  },
+  condition: {
+    fontSize: 20,
+    color: "#fff",
+    fontStyle: "italic",
+    marginBottom: 20,
+  },
+  details: {
+    fontSize: 16,
+    color: "#e0f2fe",
+    marginTop: 5,
+  },
+  updated: {
+    marginTop: 20,
+    fontSize: 12,
+    color: "#cbd5e1",
+  },
+  loadingContainer: {
+    flex: 1,
+    backgroundColor: "#3A7BD5",
+    justifyContent: "center",
+    alignItems: "center",
+  },
 });
+
+export default TodayWeather;
