@@ -1,14 +1,9 @@
-<<<<<<< Updated upstream
 import React, { useEffect, useRef, useState } from "react";
-=======
-import React, { useEffect, useState } from "react";
->>>>>>> Stashed changes
 import {
   SafeAreaView,
   View,
   Text,
   StyleSheet,
-<<<<<<< Updated upstream
   Dimensions,
   Animated,
   Image,
@@ -121,7 +116,6 @@ export default function CompassScreen() {
             style={styles.compassImage}
             resizeMode="contain"
           />
-          <View style={styles.marker} />
         </Animated.View>
 
         <View style={styles.headingBox}>
@@ -157,19 +151,9 @@ const styles = StyleSheet.create({
     height: "100%",
     tintColor: WHITE,
   },
-  marker: {
-    position: "absolute",
-    top: "2%",
-    left: "50%",
-    width: 4,
-    height: "12%",
-    backgroundColor: WHITE,
-    borderRadius: 2,
-    transform: [{ translateX: -2 }],
-  },
   headingBox: {
     position: "absolute",
-    bottom: "15%",
+    bottom: "10%",
     backgroundColor: "rgba(255,255,255,0.2)",
     padding: 20,
     borderRadius: 16,
@@ -185,119 +169,5 @@ const styles = StyleSheet.create({
     color: WHITE,
     marginTop: 8,
     textTransform: "uppercase",
-=======
-  ActivityIndicator,
-  SafeAreaView,
-  Image,
-} from "react-native";
-
-const API_KEY = "0e6e03c5c64e4baf940220745251404";
-
-const TodayWeather = () => {
-  const [weather, setWeather] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const fetchTodayWeather = async () => {
-      try {
-        const response = await fetch(
-          `https://api.weatherapi.com/v1/current.json?key=${API_KEY}&q=Calgary`
-        );
-        const data = await response.json();
-        setWeather(data);
-        setLoading(false);
-      } catch (error) {
-        console.error("Error fetching today’s weather:", error);
-        setLoading(false);
-      }
-    };
-
-    fetchTodayWeather();
-  }, []);
-
-  if (loading) {
-    return (
-      <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#fff" />
-      </View>
-    );
-  }
-
-  const {
-    location,
-    current: {
-      temp_c,
-      condition,
-      humidity,
-      wind_kph,
-      feelslike_c,
-      is_day,
-      last_updated,
-    },
-  } = weather;
-
-  return (
-    <SafeAreaView style={styles.container}>
-      <Text style={styles.title}>Today's Weather - {location.name}</Text>
-      <Image source={{ uri: "https:" + condition.icon }} style={styles.icon} />
-      <Text style={styles.temp}>{temp_c}°C</Text>
-      <Text style={styles.condition}>{condition.text}</Text>
-      <Text style={styles.details}>Feels like: {feelslike_c}°C</Text>
-      <Text style={styles.details}>Humidity: {humidity}%</Text>
-      <Text style={styles.details}>Wind: {wind_kph} km/h</Text>
-      <Text style={styles.updated}>Last updated: {last_updated}</Text>
-    </SafeAreaView>
-  );
-};
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#3A7BD5",
-    alignItems: "center",
-    paddingTop: 80,
-    paddingHorizontal: 20,
-  },
-  title: {
-    fontSize: 24,
-    color: "#fff",
-    fontWeight: "bold",
-    marginBottom: 20,
-    textAlign: "center",
-  },
-  icon: {
-    width: 100,
-    height: 100,
-  },
-  temp: {
-    fontSize: 48,
-    color: "#fff",
-    fontWeight: "bold",
-    marginTop: 10,
-  },
-  condition: {
-    fontSize: 20,
-    color: "#fff",
-    fontStyle: "italic",
-    marginBottom: 20,
-  },
-  details: {
-    fontSize: 16,
-    color: "#e0f2fe",
-    marginTop: 5,
-  },
-  updated: {
-    marginTop: 20,
-    fontSize: 12,
-    color: "#cbd5e1",
-  },
-  loadingContainer: {
-    flex: 1,
-    backgroundColor: "#3A7BD5",
-    justifyContent: "center",
-    alignItems: "center",
->>>>>>> Stashed changes
   },
 });
-
-export default TodayWeather;
