@@ -8,97 +8,112 @@ import {
   StyleSheet,
   Image,
 } from "react-native";
-import { useRouter } from 'expo-router';
+import { useRouter } from "expo-router";
 
-export default function profile() {
-    const router = useRouter();
-    return (
-        <View style={styles.container}>
-            <Text style={styles.profiletext}>Profile</Text>
-            <Image source={{uri: 'https://th.bing.com/th/id/OIP.tvaMwK3QuFxhTYg4PSNNVAHaHa?rs=1&pid=ImgDetMain'}}
-       style={{width: 200, height: 200}} />
-            <Text style={styles.labeltext}>First Name: </Text>
+export default function ProfileScreen() {
+  const router = useRouter();
+  const [profile, setProfile] = useState({
+    firstName: "Zumar",
+    lastName: "Syed Bukhari",
+    email: "zumarawesome@gmail.com",
+    location: "Home",
+  });
+
+  const handleChange = (key: keyof typeof profile, value: string) => {
+    setProfile({ ...profile, [key]: value });
+  };
+
+  return (
+    <ScrollView contentContainerStyle={styles.container}>
+      <View style={styles.inner}>
+        <Text style={styles.title}>Profile</Text>
+
+        <Image
+          source={{
+            uri: "https://th.bing.com/th/id/OIP.tvaMwK3QuFxhTYg4PSNNVAHaHa?rs=1&pid=ImgDetMain",
+          }}
+          style={styles.avatar}
+        />
+
+        {[
+          { label: "First Name", key: "firstName" },
+          { label: "Last Name", key: "lastName" },
+          { label: "Email", key: "email" },
+          { label: "Location", key: "location" },
+        ].map(({ label, key }) => (
+          <View key={key} style={styles.inputGroup}>
+            <Text style={styles.label}>{label}</Text>
             <TextInput
-        style={styles.editproperties}
-        placeholder="Zumar"
-      />
-            <Text style={styles.labeltext}>Last Name: </Text>
-            <TextInput
-        style={styles.editproperties}
-        placeholder="Syed Bukhari"
-      />
-            <Text style={styles.labeltext}>Email: </Text>
-            <TextInput
-        style={styles.editproperties}
-        placeholder="zumarawesome@gmail.com"
-      />
-            <Text style={styles.labeltext}>Location: </Text>
-            <TextInput
-        style={styles.editproperties}
-        placeholder="Home"
-      />
-            <TouchableOpacity style={styles.edit}>
-                      <Text style={styles.edittext}>Save Profile Changes</Text>
-            </TouchableOpacity>
-        </View>
-    )
+              style={styles.input}
+              value={profile[key as keyof typeof profile]}
+              onChangeText={(text) =>
+                handleChange(key as keyof typeof profile, text)
+              }
+              placeholder={label}
+              placeholderTextColor="#94A3B8"
+            />
+          </View>
+        ))}
+
+        <TouchableOpacity style={styles.button}>
+          <Text style={styles.buttonText}>Save Profile Changes</Text>
+        </TouchableOpacity>
+      </View>
+    </ScrollView>
+  );
 }
 
 const styles = StyleSheet.create({
-    container: {
-      color: "black",
-      backgroundColor: '#3A7BD5',
-      fontSize: 16,
-      fontWeight: "bold",
-      justifyContent: "center",
-      alignItems: "center",
-      flex: 1,
-    },
-    profiletext: {
-        color: "#fff",
-        fontSize: 45,
-        fontWeight: "bold",
-    },
-    returnButton: {
-        backgroundColor: "green",
-        paddingHorizontal: 20,
-        paddingVertical: 12,
-        marginVertical: 10,
-        padding: 12,
-        borderRadius: 20,
-        width: 300,
-        alignItems: "center",
-        marginTop: 10,
-      },
-      returnText: {
-        color: "black",
-        fontSize: 16,
-        fontWeight: "bold",
-      },
-      edit: {
-        backgroundColor: '#3B82F6',
-        paddingHorizontal: 20,
-        paddingVertical: 12,
-        marginVertical: 10,
-        padding: 12,
-        borderRadius: 8,
-        width: 300,
-        alignItems: "center",
-        marginTop: 10,
-      },
-      edittext: {
-        color: "white",
-        fontSize: 16,
-        fontWeight: "bold",
-      },
-      editproperties: {
-        height: 40, 
-        padding: 5
-      },
-      labeltext: {
-        color: "#64748B",
-      }
-  });
-//https://reactnative.dev/docs/handling-text-input
-//https://reactnative.dev/docs/images
-//https://th.bing.com/th/id/OIP.tvaMwK3QuFxhTYg4PSNNVAHaHa?rs=1&pid=ImgDetMain
+  container: {
+    flexGrow: 1,
+    backgroundColor: "#3A7BD5",
+    justifyContent: "flex-start",
+    paddingTop: 80, // 👈 Adds vertical spacing
+    paddingHorizontal: 20,
+  },
+  inner: {
+    alignItems: "center",
+  },
+  title: {
+    fontSize: 36,
+    fontWeight: "bold",
+    color: "#FFFFFF",
+    marginBottom: 20,
+  },
+  avatar: {
+    width: 160,
+    height: 160,
+    borderRadius: 80,
+    marginBottom: 30,
+  },
+  inputGroup: {
+    width: "100%",
+    marginBottom: 16,
+  },
+  label: {
+    color: "#E2E8F0",
+    fontSize: 14,
+    marginBottom: 4,
+    fontWeight: "500",
+  },
+  input: {
+    backgroundColor: "#FFFFFF",
+    padding: 12,
+    borderRadius: 8,
+    fontSize: 16,
+  },
+  button: {
+    marginTop: 24,
+    backgroundColor: "#2563EB",
+    paddingVertical: 14,
+    paddingHorizontal: 24,
+    borderRadius: 10,
+    width: "100%",
+    alignItems: "center",
+  },
+  buttonText: {
+    color: "#FFFFFF",
+    fontSize: 16,
+    fontWeight: "bold",
+  },
+});
