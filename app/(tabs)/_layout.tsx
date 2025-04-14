@@ -30,7 +30,7 @@ export default function TabLayout() {
       }}
     >
       <Tabs.Screen
-        name="explore"
+        name="index"
         options={{
           title: "Today",
           tabBarIcon: () => (
@@ -43,7 +43,7 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="index"
+        name="explore"
         options={{
           title: "Weekly",
           tabBarIcon: () => (
